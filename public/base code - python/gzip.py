@@ -3,7 +3,6 @@
 # Teoria da Informacao, LEI, 2022
 
 import sys
-from huffmantree import HuffmanTree
 
 
 class GZIPHeader:
@@ -162,12 +161,22 @@ class GZIP:
 				return
 			
 									
-			#--- STUDENTS --- ADD CODE HERE
+			#!--- STUDENTS --- ADD CODE HERE
 			# 
 			# 
-	
+
+			# block = self
 			
-																																								
+			# Read HLIT
+			HLIT = self.readBits(5) + 257
+			# Read HDIST
+			HDIST = self.readBits(5) + 1
+			# Read HCLEN
+			HCLEN = self.readBits(4) + 4
+			
+			print(HLIT, HDIST, HCLEN)
+
+
 			# update number of blocks read
 			numBlocks += 1
 		
@@ -228,13 +237,11 @@ class GZIP:
 
 
 if __name__ == '__main__':
-
 	# gets filename from command line if provided
-	filename = "FAQ.txt.gz"
+	fileName = './public/Codes/FAQ.txt.gz' # mudar isto (para mim tem que ser assim)
 	if len(sys.argv) > 1:
-		fileName = sys.argv[1]			
+		fileName = sys.argv[1]
 
 	# decompress file
 	gz = GZIP(fileName)
 	gz.decompress()
-	
