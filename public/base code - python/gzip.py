@@ -165,17 +165,28 @@ class GZIP:
 			# 
 			# 
 
-			# block = self
-			
-			# Read HLIT
-			HLIT = self.readBits(5) + 257
-			# Read HDIST
-			HDIST = self.readBits(5) + 1
-			# Read HCLEN
-			HCLEN = self.readBits(4) + 4
-			
-			print(HLIT, HDIST, HCLEN)
+			#? EX1
+			def readBlock():
+				# Read HLIT
+				HLIT = self.readBits(5) + 257
+				# Read HDIST
+				HDIST = self.readBits(5) + 1
+				# Read HCLEN
+				HCLEN = self.readBits(4) + 4
+				return HLIT, HDIST, HCLEN
 
+			#? Ex2
+			def readLengths(h):
+				order = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]
+				lengths = [0]*19
+				for i in range(h[2]):
+					lengths[order[i]] = self.readBits(3)
+				return lengths
+
+			h = readBlock()
+			lengths = readLengths(h)
+			print(lengths)
+			# Read HLIT + HDIST values
 
 			# update number of blocks read
 			numBlocks += 1
@@ -238,7 +249,7 @@ class GZIP:
 
 if __name__ == '__main__':
 	# gets filename from command line if provided
-	fileName = './public/Codes/FAQ.txt.gz' # mudar isto (para mim tem que ser assim)
+	fileName = './public/base code - python/FAQ.txt.gz' # mudar isto (para mim tem que ser assim)
 	if len(sys.argv) > 1:
 		fileName = sys.argv[1]
 
