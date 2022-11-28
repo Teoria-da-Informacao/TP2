@@ -3,6 +3,7 @@
 # Teoria da Informacao, LEI, 2022
 
 import sys
+from typing import Counter
 
 
 class GZIPHeader:
@@ -183,10 +184,50 @@ class GZIP:
 					lengths[order[i]] = self.readBits(3)
 				return lengths
 
+			#? Ex3
+			def ex3(lengths):
+				# bl_count [i] - número de símbolos a serem codificados com i bits
+				bl_count = [0]*(max(lengths) + 1)
+				dict = Counter(lengths)
+				for i in range(len(bl_count)):
+					bl_count[i] = dict[i]
+				bl_count[0] = 0
+
+				# next_code [i] - o próximo código livre para o comprimento i
+				next_code = [0]*len(bl_count)
+				code = 0
+				for bits in range(1, len(bl_count)):
+					code = (code + bl_count[bits-1]) << 1
+					next_code[bits] = code
+
+				# code [i] - o código para o símbolo i
+				code = [0]*len(lengths)
+
+				for i in range(len(lengths)):
+					lens = lengths[i]
+					if lens != 0:
+						code[i] = next_code[lens]
+						next_code[lens] += 1
+				return code
+
+			def toBinary(n):
+				# write in string format
+				s = bin(n)[2:]
+				# add zeros to the left if len < 3
+				while len(s) < 3:
+					s = '0' + s
+				return s
+
 			h = readBlock()
 			lengths = readLengths(h)
 			print(lengths)
-			# Read HLIT + HDIST values
+
+			tree = ex3(lengths)
+			tree = [x for x in tree if x != 0]
+			tree.insert(0, 0)
+
+			for i in tree:
+				print(toBinary(i), end=' ')
 
 			# update number of blocks read
 			numBlocks += 1
