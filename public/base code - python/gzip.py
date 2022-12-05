@@ -225,18 +225,42 @@ class GZIP:
 			print(lengths)
 
 			tree = ex3(lengths)
-			tree = [x for x in tree if x != 0]
-			temp = [i for i in lengths if i != 0]
-			tree.insert(0, 0)
-			temp.insert(0, 0)
-
 
 			hft = HuffmanTree()
 			for i in range(len(tree)):
-				hft.addNode(toBinary(tree[i]), temp[i])
-				print(toBinary(tree[i]), end=' ')
+				if lengths[i] > 0:
+					hft.addNode(toBinary(tree[i]), i)
+					print(toBinary(tree[i]), end=' ')
+					print(i)
 			print()
-			del temp
+			
+			#? Ex4
+			def ex4(hft):
+				array = []
+				node = hft.root
+				while len(array) < h[0]:
+					bit = self.readBits(1)
+					pos = hft.nextNode(str(bit))
+					if pos >= 0: # is leaf
+						if pos == 16: # copy the previous code length 3 - 6 times
+							n = self.readBits(2) + 3
+							for i in range(n):
+								array.append(array[-1])
+						elif pos == 17: # repeat a code length of 0 for 3 - 10 times
+							n = self.readBits(3) + 3
+							for i in range(n):
+								array.append(0)
+						elif pos == 18: # repeat a code length of 0 for 11 - 138 times
+							n = self.readBits(7) + 11
+							for i in range(n):
+								array.append(0)
+						else:
+							array.append(pos)
+						hft.resetCurNode()
+				return array
+
+			print(ex4(hft))
+
 
 			# update number of blocks read
 			numBlocks += 1
