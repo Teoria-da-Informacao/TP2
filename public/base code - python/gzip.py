@@ -5,6 +5,8 @@
 import sys
 from typing import Counter
 
+from huffmantree import HuffmanTree
+
 
 class GZIPHeader:
 	''' class for reading and storing GZIP header fields '''
@@ -224,10 +226,17 @@ class GZIP:
 
 			tree = ex3(lengths)
 			tree = [x for x in tree if x != 0]
+			temp = [i for i in lengths if i != 0]
 			tree.insert(0, 0)
+			temp.insert(0, 0)
 
-			for i in tree:
-				print(toBinary(i), end=' ')
+
+			hft = HuffmanTree()
+			for i in range(len(tree)):
+				hft.addNode(toBinary(tree[i]), temp[i])
+				print(toBinary(tree[i]), end=' ')
+			print()
+			del temp
 
 			# update number of blocks read
 			numBlocks += 1
