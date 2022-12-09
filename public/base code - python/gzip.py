@@ -230,14 +230,10 @@ class GZIP:
 			for i in range(len(tree)):
 				if lengths[i] > 0:
 					hft.addNode(toBinary(tree[i]), i)
-					print(toBinary(tree[i]), end=' ')
-					print(i)
-			print()
 			
 			#? Ex4
-			def ex4(hft):
+			def ex4(hft): # hlit
 				array = []
-				node = hft.root
 				while len(array) < h[0]:
 					bit = self.readBits(1)
 					pos = hft.nextNode(str(bit))
@@ -260,6 +256,32 @@ class GZIP:
 				return array
 
 			print(ex4(hft))
+
+			#? Ex5
+			def ex5(hft): # hdist
+				array = []
+				while len(array) < h[1]:
+					bit = self.readBits(1)
+					pos = hft.nextNode(str(bit))
+					if pos >= 0:
+						if pos == 16:
+							n = self.readBits(2) + 3
+							for i in range(n):
+								array.append(array[-1])
+						elif pos == 17:
+							n = self.readBits(3) + 3
+							for i in range(n):
+								array.append(0)
+						elif pos == 18:
+							n = self.readBits(7) + 11
+							for i in range(n):
+								array.append(0)
+						else:
+							array.append(pos)
+						hft.resetCurNode()
+				return array
+
+			print(ex5(hft))
 
 
 			# update number of blocks read
