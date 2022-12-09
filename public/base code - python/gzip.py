@@ -255,7 +255,8 @@ class GZIP:
 						hft.resetCurNode()
 				return array
 
-			print(ex4(hft))
+			lengthsHLIT = ex4(hft)
+			print(lengthsHLIT)
 
 			#? Ex5
 			def ex5(hft): # hdist
@@ -281,8 +282,21 @@ class GZIP:
 						hft.resetCurNode()
 				return array
 
-			print(ex5(hft))
+			lengthsHDIST = ex5(hft)
+			print(lengthsHDIST)
 
+			#? Ex6
+			# usando ex3, determine os códigos de Huffman referentes  aos  dois  alfabetos  (literais  /  comprimentos  e  distâncias)  e armazene-os num array (ver Doc5)
+			hfHLIT = ex3(lengthsHLIT)
+			hfHDIST = ex3(lengthsHDIST)
+
+			for i in range(len(hfHLIT)):
+				if lengthsHLIT[i] > 0:
+					print(toBinary(hfHLIT[i]), i)
+			print('---------------------------------------------')
+			for i in range(len(hfHDIST)):
+				if lengthsHDIST[i] > 0:
+					print(toBinary(hfHDIST[i]), i)
 
 			# update number of blocks read
 			numBlocks += 1
