@@ -298,6 +298,74 @@ class GZIP:
 				if lengthsHDIST[i] > 0:
 					print(toBinary(hfHDIST[i]), i)
 
+			#? Ex7
+			hlitTree = HuffmanTree()
+			for i in range(len(lengthsHLIT)):
+				if lengthsHLIT[i] > 0:
+					hlitTree.addNode(toBinary(lengthsHLIT[i]), i)
+
+			hdistTree = HuffmanTree()
+			for i in range(len(lengthsHDIST)):
+				if lengthsHDIST[i] > 0:
+					hdistTree.addNode(toBinary(lengthsHDIST[i]), i)
+
+			# Crie as funções necessárias à descompactação dos dados comprimidos, com  base  nos  no  algoritmo  LZ77	
+			'''
+			As noted above, encoded data blocks in the "deflate" format consist of sequences of symbols drawn 
+			from three conceptually distinct alphabets: either literal bytes, from the alphabet of byte values 
+			(0..255), or <length, backward distance> pairs, where the length is drawn from (3..258) and the 
+			distance is drawn from (1..32,768). In fact, the literal and length alphabets are merged into a single 
+			alphabet (0..285), where values 0..255 represent literal bytes, the value 256 indicates end-of-block, 
+			and values 257..285 represent length codes (possibly in conjunction with extra bits following the 
+			symbol code)
+			Code Bits Length(s)
+			257 0 3
+			258 0 4
+			259 0 5
+			260 0 6
+			261 0 7
+			262 0 8
+			263 0 9
+			264 0 10
+			265 1 11-12
+			266 1 13-14
+			267 1 15-16
+			268 1 17-18
+			269 2 19-22
+			270 2 23-26
+			271 2 27-30
+			272 2 31-34
+			273 3 35-42
+			274 3 43-50
+			275 3 51-58
+			276 3 59-66
+			277 4 67-82
+			278 4 83-98
+			279 4 99-114
+			280 4 115-130
+			281 5 131-162
+			282 5 163-194
+			283 5 195-226
+			284 5 227-257
+			285 0 258
+			'''
+			def decompress(hlitTree, hdistTree):
+				array = []
+				while True:
+					bit = self.readBits(1)
+					pos = hlitTree.nextNode(str(bit))
+					if pos >= 0:
+						if pos == 256:
+							break
+						elif pos < 256:
+							array.append(pos)
+						elif 257 <= pos <= 285:
+							pass
+				return array
+
+			array = decompress(hlitTree, hdistTree)
+			print(array)
+
 			# update number of blocks read
 			numBlocks += 1
 		
