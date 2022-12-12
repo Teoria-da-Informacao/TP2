@@ -290,24 +290,19 @@ class GZIP:
 			hfHLIT = ex3(lengthsHLIT)
 			hfHDIST = ex3(lengthsHDIST)
 
-			for i in range(len(hfHLIT)):
-				if lengthsHLIT[i] > 0:
-					print(toBinary(hfHLIT[i]), i)
-			print('---------------------------------------------')
-			for i in range(len(hfHDIST)):
-				if lengthsHDIST[i] > 0:
-					print(toBinary(hfHDIST[i]), i)
-
 			#? Ex7
 			hlitTree = HuffmanTree()
 			for i in range(len(lengthsHLIT)):
 				if lengthsHLIT[i] > 0:
-					hlitTree.addNode(toBinary(lengthsHLIT[i]), i)
+					print(toBinary(hfHLIT[i]), i)
+					hlitTree.addNode(toBinary(hfHLIT[i]), i)
+			print('---------------------------------------------')
 
 			hdistTree = HuffmanTree()
 			for i in range(len(lengthsHDIST)):
 				if lengthsHDIST[i] > 0:
-					hdistTree.addNode(toBinary(lengthsHDIST[i]), i)
+					print(toBinary(hfHDIST[i]), i)
+					hdistTree.addNode(toBinary(hfHDIST[i]), i)
 
 			# Crie as funções necessárias à descompactação dos dados comprimidos, com  base  nos  no  algoritmo  LZ77	
 			'''
@@ -318,52 +313,78 @@ class GZIP:
 			alphabet (0..285), where values 0..255 represent literal bytes, the value 256 indicates end-of-block, 
 			and values 257..285 represent length codes (possibly in conjunction with extra bits following the 
 			symbol code)
-			Code Bits Length(s)
-			257 0 3
-			258 0 4
-			259 0 5
-			260 0 6
-			261 0 7
-			262 0 8
-			263 0 9
-			264 0 10
-			265 1 11-12
-			266 1 13-14
-			267 1 15-16
-			268 1 17-18
-			269 2 19-22
-			270 2 23-26
-			271 2 27-30
-			272 2 31-34
-			273 3 35-42
-			274 3 43-50
-			275 3 51-58
-			276 3 59-66
-			277 4 67-82
-			278 4 83-98
-			279 4 99-114
-			280 4 115-130
-			281 5 131-162
-			282 5 163-194
-			283 5 195-226
-			284 5 227-257
-			285 0 258
+
+			# hdist - 0..29
+			# navegar em hlit bit a bit então output_buffer.append(pos)
+			# se 257 <= pos <= 285 copia a distancia, length mais extra bits vezes
+			# 
 			'''
-			def decompress(hlitTree, hdistTree):
+			def descomprimir(hlitTree, hdistTree):
 				array = []
-				while True:
+				pos = 0
+				while pos != 256:
+					length = 0
 					bit = self.readBits(1)
 					pos = hlitTree.nextNode(str(bit))
 					if pos >= 0:
-						if pos == 256:
-							break
-						elif pos < 256:
+						if pos < 256:
 							array.append(pos)
 						elif 257 <= pos <= 285:
-							pass
-				return array
+							length = pos - 254
 
-			array = decompress(hlitTree, hdistTree)
+							# add default length
+							if pos == 265:
+								length = 11
+							elif pos == 266:
+								length = 13
+							elif pos == 267:
+								length = 15
+							elif pos == 268:
+								length = 17
+							elif pos == 269:
+								pos = 19
+							elif pos == 270:
+								length = 23
+							elif pos == 271:
+								length = 27
+							elif pos == 272:
+								length = 31
+							elif pos == 273:
+								length = 35
+							elif pos == 274:
+								length = 43
+							elif pos == 275:
+								length = 51
+							elif pos == 276:
+								length = 59
+							elif pos == 277:
+								length = 67
+							elif pos == 278:
+								length = 83
+							elif pos == 279:
+								length = 99
+							elif pos == 280:
+								length = 115
+							elif pos == 281:
+								length = 131
+							elif pos == 282:
+								length = 163
+							elif pos == 283:
+								length = 195
+							elif pos == 284:
+								length = 227
+
+							if 265 <= pos <= 284: # extra length
+								length += self.readBits((pos - 265) // 4 + 1)
+							
+							if pos == 285:
+								length = 258
+
+						hlitTree.resetCurNode()
+
+
+
+			array = descomprimir(hlitTree, hdistTree)
 			print(array)
 
 			# update number of blocks read
