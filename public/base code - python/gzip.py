@@ -336,54 +336,60 @@ class GZIP:
                             #     print(length)
                             #     length += self.readBits(((pos - 265) // 4) + 1)
                             # add default length
-                            if 265 <= pos < 269:
-                                length = 2*(pos - 265) + 11 + self.readBits(1)
-                            elif 269 <= pos < 273:
-                                length = 4*(pos-269) + 19 + self.readBits(2)
-                            elif 273 <= pos < 277:
-                                length = 8*(pos-273) + 35 + self.readBits(3)
-                            elif 277 <= pos < 281:
-                                length = 16*(pos-277) + 67 + self.readBits(4)
-                            elif 281 <= pos < 285:
-                                length = 32*(pos-281) + 131 + self.readBits(5)
+                            # if 265 <= pos < 269:
+                            #     length = (2**1)*(pos-265) + (2**(1+2) + 3) + self.readBits(1)
+                            # elif 269 <= pos < 273:
+                            #     length = (2**2)*(pos-269) + (2**(2+2) + 3) + self.readBits(2)
+                            # elif 273 <= pos < 277:
+                            #     length = (2**3)*(pos-273) + (2**(3+2) + 3) + self.readBits(3)
+                            # elif 277 <= pos < 281:
+                            #     length = (2**4)*(pos-277) + (2**(4+2) + 3) + self.readBits(4)
+                            # elif 281 <= pos < 285:
+                            #     length = (2**5)*(pos-281) + (2**(5+2) + 3) + self.readBits(5)
+                            if 265 <= pos < 285:
+                                aux = (pos-265)//4 + 1
+                                length = (2**aux)*(pos - (261 + 4*(aux))) + (2**(aux + 2) + 3) + self.readBits(aux)
                             elif pos == 285:
                                 length = 258
-                            # print("Pos: %d - Length: %d" % (pos, length))
+                            print("PosLen: %d - Length: %d" % (pos, length))
                             
                             #Árvore HDist
                             pos2 = -1
                             while pos2 < 0:
                                 bitHLit = self.readBits(1)
                                 pos2 = hdistTree.nextNode(str(bitHLit))
-                            # print("Posição 2 - {}".format(pos2))
                             dist = pos2 + 1
-                            if 4 <= pos2 < 6:
-                                dist = (2**1)*(pos2 - 4) + 2**(1 + 1) + 1 + self.readBits(1)
-                            if 6 <= pos2 < 8:
-                                dist = (2**2)*(pos2 - 6) + 2**(2 + 1) + 1 + self.readBits(2)
-                            if 8 <= pos2 < 10:
-                                dist = (2**3)*(pos2 - 8) + 2**(3 + 1) + 1 + self.readBits(3)
-                            if 10 <= pos2 < 12:
-                                dist = (2**4)*(pos2 - 10) + 2**(4 + 1) + 1 + self.readBits(4)
-                            if 12 <= pos2 < 14:
-                                dist = (2**5)*(pos2 - 12) + 2**(5 + 1) + 1 + self.readBits(5)
-                            if 14 <= pos2 < 16:
-                                dist = (2**6)*(pos2 - 14) + 2**(6 + 1) + 1 + self.readBits(6)
-                            if 16 <= pos2 < 18:
-                                dist = (2**7)*(pos2 - 16) + 2**(7 + 1) + 1 + self.readBits(7)
-                            if 18 <= pos2 < 20:
-                                dist = (2**8)*(pos2 - 18) + 2**(8 + 1) + 1 + self.readBits(8)
-                            if 20 <= pos2 < 22:
-                                dist = (2**9)*(pos2 - 20) + 2**(9 + 1) + 1 + self.readBits(9)
-                            if 22 <= pos2 < 24:
-                                dist = (2**10)*(pos2 - 22) + 2**(10 + 1) + 1 + self.readBits(10)
-                            if 24 <= pos2 < 26:
-                                dist = (2**11)*(pos2 - 24) + 2**(11 + 1) + 1 + self.readBits(11)
-                            if 26 <= pos2 < 28:
-                                dist = (2**12)*(pos2 - 26) + 2**(12 + 1) + 1 + self.readBits(12)
-                            if 28 <= pos2 < 30:
-                                dist = (2*13)*(pos2 - 28) + 2**(13 + 1) + 1 + self.readBits(13)
-                            print("Pos:{} - Dist:{}".format(pos2, dist))
+                            # if 4 <= pos2 < 6:
+                            #     dist = (2**1)*(pos2 - 4) + 2**(1 + 1) + 1 + self.readBits(1)
+                            # if 6 <= pos2 < 8:
+                            #     dist = (2**2)*(pos2 - 6) + 2**(2 + 1) + 1 + self.readBits(2)
+                            # if 8 <= pos2 < 10:
+                            #     dist = (2**3)*(pos2 - 8) + 2**(3 + 1) + 1 + self.readBits(3)
+                            # if 10 <= pos2 < 12:
+                            #     dist = (2**4)*(pos2 - 10) + 2**(4 + 1) + 1 + self.readBits(4)
+                            # if 12 <= pos2 < 14:
+                            #     dist = (2**5)*(pos2 - 12) + 2**(5 + 1) + 1 + self.readBits(5)
+                            # if 14 <= pos2 < 16:
+                            #     dist = (2**6)*(pos2 - 14) + 2**(6 + 1) + 1 + self.readBits(6)
+                            # if 16 <= pos2 < 18:
+                            #     dist = (2**7)*(pos2 - 16) + 2**(7 + 1) + 1 + self.readBits(7)
+                            # if 18 <= pos2 < 20:
+                            #     dist = (2**8)*(pos2 - 18) + 2**(8 + 1) + 1 + self.readBits(8)
+                            # if 20 <= pos2 < 22:
+                            #     dist = (2**9)*(pos2 - 20) + 2**(9 + 1) + 1 + self.readBits(9)
+                            # if 22 <= pos2 < 24:
+                            #     dist = (2**10)*(pos2 - 22) + 2**(10 + 1) + 1 + self.readBits(10)
+                            # if 24 <= pos2 < 26:
+                            #     dist = (2**11)*(pos2 - 24) + 2**(11 + 1) + 1 + self.readBits(11)
+                            # if 26 <= pos2 < 28:
+                            #     dist = (2**12)*(pos2 - 26) + 2**(12 + 1) + 1 + self.readBits(12)
+                            # if 28 <= pos2 < 30:
+                            #     dist = (2*13)*(pos2 - 28) + 2**(13 + 1) + 1 + self.readBits(13)
+                            if 4 <= pos2 < 30:
+                                aux2 = (pos2//2) -1
+                                dist = (2**aux2)*(pos2 - (4 + 2*(aux2-1))) + 2**(1+aux2) + 1 + self.readBits(aux2)
+                                
+                            print("PosDist: {} - Dist: {}".format(pos2, dist))
                         hlitTree.resetCurNode()
 
 
