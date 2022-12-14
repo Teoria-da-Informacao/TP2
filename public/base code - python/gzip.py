@@ -332,6 +332,11 @@ class GZIP:
                             array.append(pos)
                         elif 257 <= pos <= 285:
                             length = pos - 257 + 3
+                            if 265 <= pos < 285:
+                                aux = (pos-265)//4 + 1
+                                length = (2**aux)*(pos - (261 + 4*(aux))) + (2**(aux + 2) + 3) + self.readBits(aux)
+                            elif pos == 285:
+                                length = 258
                             # if 265 <= pos <= 284: # extra length
                             #     print(length)
                             #     length += self.readBits(((pos - 265) // 4) + 1)
@@ -346,19 +351,17 @@ class GZIP:
                             #     length = (2**4)*(pos-277) + (2**(4+2) + 3) + self.readBits(4)
                             # elif 281 <= pos < 285:
                             #     length = (2**5)*(pos-281) + (2**(5+2) + 3) + self.readBits(5)
-                            if 265 <= pos < 285:
-                                aux = (pos-265)//4 + 1
-                                length = (2**aux)*(pos - (261 + 4*(aux))) + (2**(aux + 2) + 3) + self.readBits(aux)
-                            elif pos == 285:
-                                length = 258
-                            print("PosLen: %d - Length: %d" % (pos, length))
+                            # print("PosLen: %d - Length: %d" % (pos, length))
                             
                             #Árvore HDist
                             pos2 = -1
                             while pos2 < 0:
-                                bitHLit = self.readBits(1)
-                                pos2 = hdistTree.nextNode(str(bitHLit))
+                                bitHDist = self.readBits(1)
+                                pos2 = hdistTree.nextNode(str(bitHDist))
                             dist = pos2 + 1
+                            if 4 <= pos2 < 30:
+                                aux2 = (pos2//2) -1
+                                dist = (2**aux2)*(pos2 - (4 + 2*(aux2-1))) + 2**(1+aux2) + 1 + self.readBits(aux2)
                             # if 4 <= pos2 < 6:
                             #     dist = (2**1)*(pos2 - 4) + 2**(1 + 1) + 1 + self.readBits(1)
                             # if 6 <= pos2 < 8:
@@ -385,12 +388,19 @@ class GZIP:
                             #     dist = (2**12)*(pos2 - 26) + 2**(12 + 1) + 1 + self.readBits(12)
                             # if 28 <= pos2 < 30:
                             #     dist = (2*13)*(pos2 - 28) + 2**(13 + 1) + 1 + self.readBits(13)
-                            if 4 <= pos2 < 30:
-                                aux2 = (pos2//2) -1
-                                dist = (2**aux2)*(pos2 - (4 + 2*(aux2-1))) + 2**(1+aux2) + 1 + self.readBits(aux2)
-                                
-                            print("PosDist: {} - Dist: {}".format(pos2, dist))
+                            # print("PosDist: {} - Dist: {}".format(pos2, dist))
+                            
+                            if (length - dist) < 0:
+                                for i in array[-dist:-length+1]: array.append(i)
+                            else:
+                                copiar = array[-dist:]
+                                for i in range(length//dist):
+                                    for j in copiar: array.append(j)
+                                for i in range(length - (length//dist)*dist): array.append(copiar[i])
+                                    
+                            hdistTree.resetCurNode()
                         hlitTree.resetCurNode()
+                return(array)
 
 
 
