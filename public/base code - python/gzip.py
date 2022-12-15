@@ -212,14 +212,15 @@ class GZIP:
                         next_code[lens] += 1
                 return code
 
-            def toBinary(n, toggler = False):
-                aux = 3
-                if toggler: aux = 4
+            #PIP SEU BURRO, ALEM DE COPIARES O MEU CODIGO NAO SABES FAZER FUNCOES
+            #ASS: FRED o rude
+            def toBinary(n, length):
                 # write in string format
                 s = bin(n)[2:]
                 # add zeros to the left if len < 3
-                while len(s) < aux:
-                    s = '0' + s
+                # while len(s) < aux:
+                #     s = '0' + s
+                s = "0" * (length-len(s)) + s
                 return s
             
             h = readBlock()
@@ -231,7 +232,7 @@ class GZIP:
             hft = HuffmanTree()
             for i in range(len(tree)):
                 if lengths[i] > 0:
-                    hft.addNode(toBinary(tree[i]), i)
+                    hft.addNode(toBinary(tree[i], lengths[i]), i)
             
             #? Ex4
             def ex4(hft): # hlit
@@ -300,8 +301,8 @@ class GZIP:
                 if lengthsHLIT[i] > 0:
                     # print(toBinary(hfHLIT[i]), i)
                     # hlitTree.addNode(toBinary(hfHLIT[i]), i)
-                    print(toBinary(hfHLIT[i], True), i)
-                    hlitTree.addNode(toBinary(hfHLIT[i], True), i)
+                    print(toBinary(hfHLIT[i], lengthsHLIT[i]), i)
+                    hlitTree.addNode(toBinary(hfHLIT[i], lengthsHLIT[i]), i)
                     # hlitTree.addNode(bin(hfHLIT[i]), i)
             print('---------------------------------------------')
 
@@ -310,8 +311,8 @@ class GZIP:
                 if lengthsHDIST[i] > 0:
                     # print(toBinary(hfHDIST[i]), i)
                     # hdistTree.addNode(toBinary(hfHDIST[i]), i)
-                    print(toBinary(hfHDIST[i], True), i)
-                    hdistTree.addNode(toBinary(hfHDIST[i], True), i)
+                    print(toBinary(hfHDIST[i], lengthsHDIST[i]), i)
+                    hdistTree.addNode(toBinary(hfHDIST[i], lengthsHDIST[i]), i)
                     # hlitTree.addNode((hfHDIST[i]), i)
 
             # Crie as funções necessárias à descompactação dos dados comprimidos, com  base  nos  no  algoritmo  LZ77    
@@ -329,7 +330,6 @@ class GZIP:
             # se 257 <= pos <= 285 copia a distancia, length mais extra bits vezes
             # 
             '''
-            '''
             def descomprimir(hlitTree, hdistTree):
                 array = []
                 pos = 0
@@ -337,13 +337,10 @@ class GZIP:
                     length = 0
                     dist = 0
                     bitHLit = self.readBits(1)
-                    print(bitHLit)
                     pos = hlitTree.nextNode(str(bitHLit))
                     if pos >= 0:
-                        print(pos)
                         if pos < 256:
                             array.append(pos)
-                            print(array)
                         else:
                             length = pos - 257 + 3
                             if 265 <= pos < 285:
@@ -361,7 +358,6 @@ class GZIP:
                             #     length = (2**4)*(pos-277) + (2**(4+2) + 3) + self.readBits(4)
                             # elif 281 <= pos < 285:
                             #     length = (2**5)*(pos-281) + (2**(5+2) + 3) + self.readBits(5)
-                            print("PosLen: %d - Length: %d" % (pos, length))
                             
                             #Árvore HDist
                             pos2 = -1
@@ -398,7 +394,6 @@ class GZIP:
                             #     dist = (2**12)*(pos2 - 26) + 2**(12 + 1) + 1 + self.readBits(12)
                             # if 28 <= pos2 < 30:
                             #     dist = (2*13)*(pos2 - 28) + 2**(13 + 1) + 1 + self.readBits(13)
-                            print("PosDist: {} - Dist: {}".format(pos2, dist))
                             
                             # if (length - dist) < 0:
                             #     for i in array[-dist:-length+1]: array.append(i)
@@ -407,64 +402,70 @@ class GZIP:
                             #     for i in range(length//dist):
                             #         for j in copiar: array.append(j)
                             #     for i in range(length - (length//dist)*dist): array.append(copiar[i])
+                            original = len(array)
                             for i in range(length):
-                                array.append(array[len(array) - dist + i])
+                                array.append(array[original - dist + i])
                                     
                             hdistTree.resetCurNode()
                         hlitTree.resetCurNode()
                 return(array)
-            '''
-            def decompress(gzip, HLIT_tree, HDIST_tree):
-                output = []
-                pos = 0;
-                while pos != 256:
-                    bit = gzip.readBits(1)
-                    pos = HLIT_tree.nextNode(str(bit))
-                    if(pos >= 0):
-                        print(output)
-                        if(pos < 256):
-                            output += [pos]
-                        else:
-                            size = [0,0]
-                            if(255<pos<265):
-                                size[0] = pos-254
-                            elif (pos == 285):
-                                size[0] = 258
-                            else:
-                                #Algoritm to calculate bits to read
-                                toRead = ((pos-265)//4)+1
-                                aux = 11 # aux stating value if pos greater or equal to 265
-                                for i in range(1, toRead): # Algorithm to calculate the number of bits to read
-                                    aux += (4 * (2 ** i))
-                                aux += ((pos-265)%4*(2**toRead))+gzip.readBits(toRead)
-                                size[0] = aux
-                            # dist = Backwards Distance
-                            dist = -2
-                            while dist < 0:
-                                # Reads the font and searches HDIST_tree
-                                dist = HDIST_tree.nextNode(str(gzip.readBits(1)))
-                            HDIST_tree.resetCurNode()
-                            if (dist < 4):
-                                size[1] = dist+1
-                            else:
-                                # Calculates the bits to read
-                                toRead = ((dist-4)//2)+1
-                                aux = 5 # aux stating value if dist greater or equal to 4
-                                for i in range(1, toRead): # algorithm to calculate
-                                    aux += (2 * (2 ** i))
-                                aux += ((dist-4)%2)*(2**toRead) + gzip.readBits(toRead)
-                                size[1] = aux
-                            # Reads the font dist backwards and length forward
-                            start = len(output) - size[1]
-                            for i in range(size[0]):
-                                output += [output[start+i]]
+            
+            # def decompress(gzip, HLIT_tree, HDIST_tree):
+            #     output = []
+            #     pos = 0;
+            #     while pos != 256:
+            #         bit = gzip.readBits(1)
+            #         pos = HLIT_tree.nextNode(str(bit))
+            #         if(pos >= 0):
+            #             print(output)
+            #             if(pos < 256):
+            #                 output += [pos]
+            #             else:
+            #                 size = [0,0]
+            #                 if(255<pos<265):
+            #                     size[0] = pos-254
+            #                 elif (pos == 285):
+            #                     size[0] = 258
+            #                 else:
+            #                     #Algoritm to calculate bits to read
+            #                     toRead = ((pos-265)//4)+1
+            #                     aux = 11 # aux stating value if pos greater or equal to 265
+            #                     for i in range(1, toRead): # Algorithm to calculate the number of bits to read
+            #                         aux += (4 * (2 ** i))
+            #                     aux += ((pos-265)%4*(2**toRead))+gzip.readBits(toRead)
+            #                     size[0] = aux
+            #                 # dist = Backwards Distance
+            #                 dist = -2
+            #                 while dist < 0:
+            #                     # Reads the font and searches HDIST_tree
+            #                     dist = HDIST_tree.nextNode(str(gzip.readBits(1)))
+            #                 HDIST_tree.resetCurNode()
+            #                 if (dist < 4):
+            #                     size[1] = dist+1
+            #                 else:
+            #                     # Calculates the bits to read
+            #                     toRead = ((dist-4)//2)+1
+            #                     aux = 5 # aux stating value if dist greater or equal to 4
+            #                     for i in range(1, toRead): # algorithm to calculate
+            #                         aux += (2 * (2 ** i))
+            #                     aux += ((dist-4)%2)*(2**toRead) + gzip.readBits(toRead)
+            #                     size[1] = aux
+            #                 # Reads the font dist backwards and length forward
+            #                 start = len(output) - size[1]
+            #                 for i in range(size[0]):
+            #                     output += [output[start+i]]
                             
-                        HLIT_tree.resetCurNode()
-                return output
+            #             HLIT_tree.resetCurNode()
+            #     return output
 
 
-            array = decompress(self, hlitTree, hdistTree)
+            array = descomprimir(hlitTree, hdistTree)
             print(array)
+            
+            #? Ex8
+            output = open(self.gzh.fName, "wb")
+            output.write(bytes(array))
+            output.close
 
             # update number of blocks read
             numBlocks += 1
