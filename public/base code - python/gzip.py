@@ -201,7 +201,6 @@ class GZIP:
 
                 # code [i] - o código para o símbolo i
                 code = [0]*len(lengths)
-
                 for i in range(len(lengths)):
                     lens = lengths[i]
                     if lens != 0:
@@ -210,8 +209,8 @@ class GZIP:
                 return code
 
             def toBinary(n, length):
-                s = bin(n)[2:] # write in string format
-                return "0" * (length-len(s)) + s
+                s = bin(n)[2:] # remove '0b' from the beginning
+                return "0" * (length-len(s)) + s # add leading zeros
             
             h = readBlock()
             lengths = readLengths(h)
@@ -322,7 +321,7 @@ class GZIP:
                                 pos2 = hdistTree.nextNode(str(bitHDist))
                             dist = pos2 + 1
                             if 4 <= pos2 < 30:
-                                aux2 = (pos2//2) -1
+                                aux2 = (pos2 // 2) - 1
                                 dist = (2**aux2)*(pos2 - (4 + 2*(aux2-1))) + 2**(1+aux2) + 1 + self.readBits(aux2)
 
                             original = len(array)
